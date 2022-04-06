@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.5.0/js/md5.min.js"></script>
+<script type='text/javascript'>
+    $(document).ready(function(){
+        $("input:radio[name=option]").click(function() {
+            var value = $(this).val();
+            var image_name;
+            if(value == 'hip'){
+                image_name = "images/hip.jpg";
+            }else{
+                if(value == 'hhw'){
+                    image_name = "images/hhw.jpg";
+                }else{
+                    image_name = "images/hcc.jpg";
+                }
+            }
+             $('#formula').attr('src', image_name);
+        });
+    });
+</script>
+<h1 style="color: #5e9ca0;"><img src="images/Anthem-logo.jpg" alt="logo" /></h1>
+<hr />
+<h2 style="color: #2e6c80;">Búsqueda de miembros</h2>
+<p>Por favor escoja el programa de Medicaid al cual está registrado:</p>
+<input type="radio" name="option" value="hip" id="hip" >Healthy Indiana Plan (HIP)<br />
+<input type="radio" name="option" value="hhw" id="hhw" >Hoosier Healthwise (HHW)<br />
+<input type="radio" name="option" value="hcc" id="hcc" >Hoosier Care Connect (HCC)<br />
+
+<img src="images/blank.jpg" name="formula" id="formula">
+
+<p><label for="fname">Nombre de pila</label><br /><label for="fname"> </label> <input id="fname" name="fname" type="text" /><br /></p>
+<p><label for="lname">Apellido</label><br /><label for="lname"> </label><input id="lname" name="lname" type="text" /><br /></p>
+<p><label for="dob">Fecha de Nacimiento</label><br /><input id="dob" name="dob" type="date" value="mm/dd/yyyy" /><br /><br /></p>
+<p><label for="rid">Los primeros cuatro dígitos de su número de RID en su tarjeta (State Medicaid ID) Number:
+<br />(Identifique los números en su tarjeta de acuerdo al ejemplo de abajo)</label><br />
+<input id="rid" name="rid" type="text" maxlength="4"/><br /><br /></p>
+
+<p><input id="myButton" type="button" value="Siguiente &gt;&gt;" /></p>
+
+<script type="text/javascript">
+    document.getElementById("myButton").onclick = function () {
+		var fname = document.getElementById("fname").value.trim().toUpperCase();
+		var lname = document.getElementById("lname").value.trim().toUpperCase();
+		var dob = document.getElementById("dob").value.trim().replace(/-/g, "");
+		var rid = document.getElementById("rid").value;	
+    var i=fname+lname+dob+rid;		
+	var o = md5(fname+lname+dob+rid);
+	
+	//John Doe    01-01-1991     1357       75e0692b09f4dade547d751cd9e2f2e6|M|A
+	//Jane Doe    02-02-1996     2468		7be9b022f161d1a1d11b8c19985ec9fd|F|A
+	//Jaun Perez  03-03-1988     8765		ea822f235d3712f066d954d0fd893d96|M|A
+	//Maria Perez 04-04-2013     3456		59c7e4141e333da4874496db644ff317|F|C
+	//Member not located in database. Please try again tomorrow.
+	//Miembro no ubicado en la base de datos. Inténtalo de nuevo mañana.
+	const fromDB = '75e0692b09f4dade547d751cd9e2f2e6|M|A~7be9b022f161d1a1d11b8c19985ec9fd|F|A~ea822f235d3712f066d954d0fd893d96|M|A~59c7e4141e333da4874496db644ff317|F|C';
+	const baseURL = 'https://www.surveymonkey.com/r/IndianaMedicaidHealthNeedsScreening';
+	const lang = 'SPAN';
+	
+	if (!fname || !lname || !rid || !dob) {
+		alert("Porfavor complete todos los campos.");
+	} else {
+		console.log('i = '+i+', hash = '+o);
+		var pointer = fromDB.indexOf(o);
+		if (pointer < 0) {
+			alert("Miembro no ubicado en la base de datos. Inténtalo de nuevo mañana.");
+		} else {
+			var sex = fromDB[pointer+33];          
+			var adultChild = fromDB[pointer+35];       console.log('sex = '+sex+', adultChild = '+adultChild);
+			
+			var url = baseURL;
+			//location.href = "https://www.surveymonkey.com/r/IndianaMedicaidHealthNeedsScreening13ENG?MID=1234567890ABCDEF";
+			if (sex == 'M' || adultChild == 'C') {
+				url += '11'+lang+'?MID='+o;
+			} else {
+				url += '13'+lang+'?MID='+o;
+			}
+			console.log('url = '+url)
+			location.href = url;
+		}
+    }
+}
+</script>
+
+</body>
+</html>
